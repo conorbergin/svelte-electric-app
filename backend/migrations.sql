@@ -1,0 +1,24 @@
+CREATE TABLE person (
+    id UUID PRIMARY KEY,
+    name TEXT NOT NULL,
+    age INT NOT NULL
+);
+
+ALTER TABLE person ENABLE ELECTRIC;
+
+
+CREATE TABLE club (
+    id UUID PRIMARY KEY,
+    name TEXT NOT NULL,
+    age INT NOT NULL
+);
+
+ALTER TABLE club ENABLE ELECTRIC;
+
+CREATE TABLE clubperson (
+    id UUID PRIMARY KEY,
+    person_id UUID  NOT NULL,
+    club_id UUID  NOT NULL
+);
+
+ALTER TABLE clubperson ENABLE ELECTRIC;
