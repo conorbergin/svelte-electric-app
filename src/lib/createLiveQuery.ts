@@ -8,7 +8,6 @@ export const createLiveQuery = (query) => {
     let tablenames;
     let key;
     query().then((r) => {
-      console.log('start)')
       set(r.result);
       tablenames = r.tablenames;
       key = electric.notifier.subscribeToDataChanges((notification) => {
@@ -19,10 +18,8 @@ export const createLiveQuery = (query) => {
       });
     });
     return function stop() {
-      console.log("stop");
       if (key) {
         electric.notifier.unsubscribeFromDataChanges(key);
-        console.log("unsubscribe");
       }
     };
   });
