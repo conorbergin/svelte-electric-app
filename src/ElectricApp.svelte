@@ -3,7 +3,6 @@
   import { type Electric } from "./generated/client";
   import { readable } from "svelte/store";
   import {
-    generateRandomGroup,
     generateRandomName,
     generateRandomValue,
   } from "./utils";
@@ -14,9 +13,7 @@
 
   export const useElectric = makeContext(electric);
 
-  electric.db.club.sync();
   electric.db.person.sync();
-  electric.db.clubperson.sync();
 
   const add = () => {
     electric.db.person.create({
@@ -28,7 +25,6 @@
     });
   };
 
-  // electric.db.person.findMany().then(r => console.log(r))
 
   let results = undefined;
   let search = "";
