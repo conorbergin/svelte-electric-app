@@ -1,22 +1,22 @@
 <script lang="ts">
   import { genUUID, hasIntersection } from "electric-sql/util";
   import { type Electric } from "./generated/client";
-  import { readable } from "svelte/store";
+  import { derived, writable } from "svelte/store";
   import {
     generateRandomName,
     generateRandomValue,
   } from "./utils";
 
-  import { createLiveQuery } from "./lib/createLiveQuery";
-  import { makeContext } from "./lib/context";
+  import { createLiveQuery } from "./lib/svelteLiveQuery";
+  
   export let electric: Electric;
 
-  export const useElectric = makeContext(electric);
+  let { db, notifier} = electric
 
-  electric.db.person.sync();
+  db.person.sync();
 
   const add = () => {
-    electric.db.person.create({
+    db.person.create({
       data: {
         id: genUUID(),
         name: generateRandomName(),
@@ -26,23 +26,21 @@
   };
 
 
-  let results = undefined;
-  let search = "";
-  $: query = electric.db.person.liveMany({
-    where: { name: { contains: search } },
-  });
-  $: results = createLiveQuery(query);
+  let search = writable("");
+  const query = electric.db.person.liveMany();
+  const results = createLiveQuery(notifier,query);
+  const der = derived([results,search], ([$results,$search]) => $results?.filter(x => x.name.includes($search)))
 </script>
 
 Search: 
-<input bind:value={search} type="text" />
+<input bind:value={$search} type="text" />
 <button on:click={add}>add</button>
 {#if search}
-  <div><small><italic>{$results ? $results.length : 0} results</italic></small></div>
+  <div><small><italic>{$der ? $der.length : 0} results</italic></small></div>
 {/if}
-{#if $results}
+{#if $der}
   <div>
-    {#each $results as r}
+    {#each $der as r}
       <div>{r.name}</div>
     {/each}
   </div>
