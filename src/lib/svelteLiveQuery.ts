@@ -1,4 +1,4 @@
-import { readable } from "svelte/store";
+import { derived, readable, type Writable } from "svelte/store";
 import { QualifiedTablename, hasIntersection } from "electric-sql/util";
 import {type Notifier } from 'electric-sql/notifiers'
 
@@ -18,15 +18,14 @@ export class LiveResult<T> {
 }
 
 
-export function createLiveQuery<T>(notifier:Notifier, query: LiveResultContext<T> ) {
-  return readable<undefined | T>(undefined, (set) => {
+export function createLiveQuery<T>(notifier:Notifier, query: Writable<LiveResultContext<T>> ) {
+  return derived<Writable<LiveResultContext<T>>,undefined | T>(query, ($query,set) => {
 
     let tablenames : QualifiedTablename[];
     let key : string;
 
-    console.log(query.sourceQuery)
 
-    query().then((r) => {
+    $query().then((r) => {
       tablenames = r.tablenames;
       set(r.result);
 
@@ -34,7 +33,7 @@ export function createLiveQuery<T>(notifier:Notifier, query: LiveResultContext<T
         const changedTablenames = notifier.alias(notification);
 
         if (hasIntersection(tablenames, changedTablenames)) {
-          query().then((r) => set(r.result));
+          $query().then((r) => set(r.result));
         }
       });
     });
@@ -45,5 +44,5 @@ export function createLiveQuery<T>(notifier:Notifier, query: LiveResultContext<T
       }
     };
 
-  });
+  })
 }

@@ -22,24 +22,29 @@
     });
   };
 
+  const clear = () => db.person.deleteMany()
+  const change = () => db.person.findFirst().then(p => p && db.person.update({where:{id:p.id},data:{age:5}}) )
+
   let search = writable("");
   const query = electric.db.person.liveMany();
-  const results = createLiveQuery(notifier, query);
+  const results = createLiveQuery(notifier, writable(query));
   const der = derived([results, search], ([$results, $search]) =>
     $results?.filter((x) => x.name.includes($search)),
   );
 </script>
 
-Search:
-<input bind:value={$search} type="text" />
 <button on:click={add}>add</button>
+<button on:click={clear}>clear</button>
+<button on:click={change}>change</button>
+
+<input bind:value={$search} type="text" placeholder="search"/>
 {#if search}
   <div><small><italic>{$der ? $der.length : 0} results</italic></small></div>
 {/if}
 {#if $der}
   <div>
     {#each $der as r}
-      <div>{r.name}</div>
+      <div>{r.name} {r.age}</div>
     {/each}
   </div>
 {/if}
