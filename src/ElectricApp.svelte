@@ -2,16 +2,13 @@
   import { genUUID, hasIntersection } from "electric-sql/util";
   import { type Electric } from "./generated/client";
   import { derived, writable } from "svelte/store";
-  import {
-    generateRandomName,
-    generateRandomValue,
-  } from "./utils";
+  import { generateRandomName, generateRandomValue } from "./utils";
 
   import { createLiveQuery } from "./lib/svelteLiveQuery";
-  
+
   export let electric: Electric;
 
-  let { db, notifier} = electric
+  let { db, notifier } = electric;
 
   db.person.sync();
 
@@ -25,14 +22,15 @@
     });
   };
 
-
   let search = writable("");
   const query = electric.db.person.liveMany();
-  const results = createLiveQuery(notifier,query);
-  const der = derived([results,search], ([$results,$search]) => $results?.filter(x => x.name.includes($search)))
+  const results = createLiveQuery(notifier, query);
+  const der = derived([results, search], ([$results, $search]) =>
+    $results?.filter((x) => x.name.includes($search)),
+  );
 </script>
 
-Search: 
+Search:
 <input bind:value={$search} type="text" />
 <button on:click={add}>add</button>
 {#if search}
