@@ -4,7 +4,7 @@
   import { derived, writable } from "svelte/store";
   import { generateRandomName, generateRandomValue } from "./utils";
 
-  import { createLiveQuery } from "./lib/svelteLiveQuery";
+  import { createLiveQuery, createDerivedQuery } from "./lib/svelteLiveQuery";
 
   export let electric: Electric;
 
@@ -26,8 +26,8 @@
   const change = () => db.person.findFirst().then(p => p && db.person.update({where:{id:p.id},data:{age:5}}) )
 
   let search = writable("");
-  const query = electric.db.person.liveMany();
-  const results = createLiveQuery(notifier, writable(query));
+  const query = electric.db.person.liveMany({orderBy:{name:'desc'}});
+  const results = createDerivedQuery(notifier, writable(query));
   const der = derived([results, search], ([$results, $search]) =>
     $results?.filter((x) => x.name.includes($search)),
   );
